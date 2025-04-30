@@ -26,7 +26,6 @@ nrow(data)
 ncol(data)
 #[1] 13
 
-
 #korrigera felskrivning i Excel filen blocket data
 
 data$Säljare <- ifelse(data$Säljare == "privat", "Privat", data$Säljare)
@@ -58,14 +57,111 @@ qqline(data$Försäljningspris, col = "red",lwd = 2)
 
 #Resultat samtliga kontrollerade variabler har p värden mycket långt under p = 0.05, och följer inte en normalfördelning.
 
-#Kontrollera snedhet (skewness)
-library(e1071)
 
 skewness(data$Försäljningspris)
 #[1] 0.6072405
 
+library(e1071)
+# Beräkna medelvärde och standardavvikelse
+mean_value <- mean(data$Försäljningspris, na.rm = TRUE)
+sd_value <- sd(data$Försäljningspris, na.rm = TRUE)
 
-# Skapa värden för 3 kategoriska variabler av binär typ
+
+plot(density(data$Försäljningspris), 
+     main="Densitet plot Försäljningspris, Blocketdata, med Gauss-kurva", 
+     ylab="Frekvens", 
+     sub=paste("Skewness:", round(e1071::skewness(data$Försäljningspris), 2))) 
+
+polygon(density(data$Försäljningspris), col="red")
+
+# Lägg till Gauss-kurvan
+curve(dnorm(x, mean = mean_value, sd = sd_value), 
+      col = "blue", 
+      lwd = 2, 
+      add = TRUE)
+legend("topright", legend = c("Data", "Gauss-kurva"), 
+       fill = c("red", "blue"), bty = "n")
+
+
+# Beräkna medelvärde och standardavvikelse
+mean_value <- mean(data$Miltal, na.rm = TRUE)
+sd_value <- sd(data$Miltal, na.rm = TRUE)
+
+plot(density(data$Miltal), 
+     main="Densitet plot Miltal Blocket-data med Gauss-kurva", 
+     ylab="Frekvens", 
+     sub=paste("Skewness:", round(e1071::skewness(data$Miltal), 2))) 
+
+polygon(density(data$Miltal), col="red")
+
+# Lägg till Gauss-kurvan
+curve(dnorm(x, mean = mean_value, sd = sd_value), 
+      col = "blue", 
+      lwd = 2, 
+      add = TRUE)
+legend("topright", legend = c("Data", "Gauss-kurva"), 
+       fill = c("red", "blue"), bty = "n")
+
+
+# Beräkna medelvärde och standardavvikelse
+mean_value <- mean(data$Hästkrafter, na.rm = TRUE)
+sd_value <- sd(data$Hästkrafter, na.rm = TRUE)
+
+plot(density(data$Hästkrafter, adjust = 0.8),
+     main="Densitet plot Hästkrafter Blocket-data med Gauss-kurva", 
+     ylab="Frekvens", 
+     sub=paste("Skewness:", round(e1071::skewness(data$Hästkrafter), 2))) 
+
+polygon(density(data$Hästkrafter), col="red")
+
+# Lägg till Gauss-kurvan
+curve(dnorm(x, mean = mean_value, sd = sd_value), 
+      col = "blue", 
+      lwd = 2, 
+      add = TRUE)
+legend("topright", legend = c("Data", "Gauss-kurva"), 
+       fill = c("red", "blue"), bty = "n")
+
+# Beräkna medelvärde och standardavvikelse
+mean_value <- mean(data$Motorstorlek, na.rm = TRUE)
+sd_value <- sd(data$Motorstorlek, na.rm = TRUE)
+
+plot(density(data$Motorstorlek, adjust = 0.9),
+     main="Densitet plot Motorstorlek Blocket-data med Gauss-kurva", 
+     ylab="Frekvens", 
+     sub=paste("Skewness:", round(e1071::skewness(data$Motorstorlek), 2))) 
+
+polygon(density(data$Motorstorlek), col="red")
+
+# Lägg till Gauss-kurvan
+curve(dnorm(x, mean = mean_value, sd = sd_value), 
+      col = "blue", 
+      lwd = 2, 
+      add = TRUE)
+legend("topright", legend = c("Data", "Gauss-kurva"), 
+       fill = c("red", "blue"), bty = "n")
+
+# Beräkna medelvärde och standardavvikelse
+mean_value <- mean(data$Modellår, na.rm = TRUE)
+sd_value <- sd(data$Modellår, na.rm = TRUE)
+
+plot(density(data$Modellår, adjust = 0.9),
+     main="Densitet plot Modellår Blocket-data med Gauss-kurva", 
+     ylab="Frekvens", 
+     sub=paste("Skewness:", round(e1071::skewness(data$Modellår), 2))) 
+
+polygon(density(data$Modellår), col="red")
+
+# Lägg till Gauss-kurvan
+curve(dnorm(x, mean = mean_value, sd = sd_value), 
+      col = "blue", 
+      lwd = 2, 
+      add = TRUE)
+legend("topright", legend = c("Data", "Gauss-kurva"), 
+       fill = c("red", "blue"), bty = "n")
+
+
+#Skapa värden för 3 kategoriska variabler av binär typ
 
 data$Säljare_företag <- ifelse(data$Säljare == "Företag", 1, 0)
 data$Växellåda_Automat <- ifelse(data$Växellåda == "Automat", 1, 0)
@@ -75,53 +171,90 @@ table(data$Säljare_företag)     #alternativ Företag eller Privat
 table(data$Växellåda_Automat)   # alternativ manuell, Automat
 table(data$Drivning_Fyrhjulsdriven) #alternativ Fyrhjulsdriven, Tvåhjulsdriven
 
-
-#Borttagning av de tidigare kolumner som fått binär
-
-data <- subset(data, select = -c(BränsleDiesel, BränsleBensin, BränsleMiljöbränsle_Hybrid))
+#Borttagning av de tidigare kolumner som fått binär kodning
 
 data_encoded <- model.matrix(~ Bränsle + Biltyp + Färg + Modell + Region - 1, data = data)               
 data <- cbind(data, data_encoded)   
 head(data_encoded)
 colnames(data_encoded)
 
-
 #Borttagning av de tidigare kolumner som fått one hot encoder variabler
 data <- subset(data, select = -c(Bränsle, Biltyp, Modell, Färg, Region))
-               
-### Beräkna korrelationen mellan de oberoende variablerna i dataset Blocket, med beroende variablen Y
-### försälningspriset, lista samtliga korrelationer där värdet överstiger 0.20, samla dessa i en dataframe 
-### skriv ut resultatet, en metod för att få en initial uppfattning, vilka oberoende variabler som har högst påverkan på modellen.
+data <- subset(data, select = -c(Säljare, Växellåda, Drivning))
+
+library(dplyr)
+
+# Standardisera numeriska kolumner
+data_standardized <- data %>%
+  mutate(across(where(is.numeric), ~ scale(.)))
 
 
-# Beräkna korrelationer och filtrera resultat i en cell
-cor_max <- cor(data, use = "complete.obs")["Försäljningspris", ] # Hämta korrelationer för Försäljningspris
-filtered_correlation_df <- data.frame(
-  Variable = names(cor_max),         # Variabelnamn
-  Correlation = cor_max             # Korrelationer
+# Kör linjär regression med alla numeriska variabler
+lm_model <- lm(Försäljningspris ~ ., data = data_standardized)
+
+# Visa sammanfattningen av modellen
+summary(lm_model)
+
+# Hämta koefficienter och p-värden från regressionsmodellen
+model_summary <- summary(lm_model)
+
+# Bygg dataframe med variabelnamn, estimat och p-värden
+coefficients_df <- data.frame(
+  Variable = rownames(model_summary$coefficients),
+  Estimator = model_summary$coefficients[, "Estimate"],
+  P_Value = model_summary$coefficients[, "Pr(>|t|)"]
 )
 
-# Filtrera bort korrelationer under 0.20 och sortera resultat
-filtered_correlation_df <- subset(filtered_correlation_df, abs(Correlation) > 0.20)
-filtered_correlation_df <- filtered_correlation_df[order(-abs(filtered_correlation_df$Correlation)), ]
+# Sortera dataframe baserat på p-värden (lägst först)
+coefficients_sorted <- coefficients_df %>%
+  arrange(P_Value)
 
-# Skriv ut den filtrerade dataframen
-print(filtered_correlation_df)
+# Visa dataframe
+print(coefficients_sorted)
 
-lin_reg<- lm(Försäljningspris ~., data = reduced_data)
-summary(lin_reg) 
+significant_vars <- coefficients_sorted %>%
+  filter(P_Value < 0.05)
+print(significant_vars)
 
-lin_reg_quad <- lm(Försäljningspris ~ I(Miltal^2) + ., data = reduced_data)
-summary(lin_quad)
+coefficients_sorted <- coefficients_sorted %>%
+  arrange(desc(abs(Estimator)))
+print(coefficients_sorted)
 
-summary(reduced_data)
-names(reduced_data)
-reduced_data$Miltal2 <- reduced_data$Miltal^2
-print(length(data$Miltal)) # Ska vara 843
+
+top_vars <- coefficients_sorted %>%
+  filter(P_Value < 0.05) %>%
+  arrange(P_Value) %>%
+  head(20) %>%
+  pull(Variable)
+  print(top_vars)
+  
+top_vars <- make.names(top_vars)
+# Convert to a vector
+top_vars <- unlist(top_vars)
+
+data$Modell<- unique(modell_columns)
+print(data$Modell)  # Kontrollera värdena i den nya kolumnen
+data$Modell <- gsub(" ","", data$Modell)  # Ersätter mellanslag med punkter
+
+lm_top <- lm(Försäljningspris ~ ., data = data[, c("Försäljningspris", top_vars)])
+summary(lm_top)
+
+    
+top_vars <- gsub(" ", "", top_vars)  # Ersätter mellanslag med punkter
+print(top_vars)
+top_vars<-unique(top_vars)
+
+
+# Check the structure to confirm it's now a vector
+print(top_vars)
+is.vector(top_vars)  # Should return TRUE
+
+lin_reg <- lm(Försäljningspris ~ ., data = data[, c("Försäljningspris", top_vars)])
+summary(lin_reg)
 
 library(robustbase)
 # Skapa en robust regressionsmodell
-lin_reg_rob <- lmrob(Försäljningspris ~ ., data = reduced_data)
+lin_reg_rob <- lmrob(Försäljningspris ~ ., data = data_standardized[, c("Försäljningspris", top_vars)])
 
 # Sammanfattning av den robusta modellen
 summary(lin_reg_rob)
@@ -129,10 +262,10 @@ summary(lin_reg_rob)
 ###Uppdelning av Blocket Bildata, i 15 % Validideringsdata 15 % testdata och 70 % träningsdata för en standard
 ###modell Linreg
 
-set.seed(123)
-train_index <- sample(seq_len(nrow(reduced_data)), size = 0.7 * nrow(reduced_data))
-train_data <- reduced_data[train_index, ]
-test_data <- reduced_data[-train_index, ]
+set.seed(123)  # För reproducerbarhet
+train_index <- sample(1:nrow(data_standardized), 0.8 * nrow(data_standardized))
+train_data <- data_standardized[train_index, ]
+test_data <- data_standardized[-train_index, ]
 
 lin_reg<- lm(Försäljningspris ~., data = train_data)
 summary(lin_reg) 
@@ -143,11 +276,11 @@ lin_reg_rob <- lmrob(Försäljningspris ~ ., data = train_data)
 # Sammanfattning av den robusta modellen
 summary(lin_reg_rob)
 
-linreg_val_predictions <- predict(lin_reg, newdata = val_data)
-linreg_test_predictions <- predict(lin_reg, newdata = test_data)
+Y_predlinR_val <- predict(lin_reg, newdata = val_data)
+Y_predlinR_test <- predict(lin_reg, newdata = test_data)
 
-linrob_val_predictions <- predict(lin_reg_rob, newdata = val_data)
-linrob_test_predictions <- predict(lin_reg_rob, newdata = test_data)
+YpredRo_val <- predict(lin_reg_rob, newdata = val_data)
+YpredRo_test <- predict(lin_reg_rob, newdata = test_data)
 
 # Beräkna utvärderingsmått för linjär regression
 rmse_lin_val <- sqrt(mean((linreg_val_predictions - val_data$Försäljningspris)^2))
@@ -192,7 +325,6 @@ lasso_coef <- coef(lasso_model, s = best_lambda)
 selected_vars <- rownames(lasso_coef)[lasso_coef[, 1] != 0]
 print(selected_vars)
 
-
 # Välj det bästa Lambda-värdet (regulariseringens styrka)
 best_lambda <- lasso_model$lambda.min
 
@@ -202,11 +334,10 @@ print(lasso_coef)  # Visa vilka variabler som är inkluderade (icke-noll koeffic
 
 sorted_coef <- lasso_coef[order(-abs(lasso_coef[, 1])), , drop = FALSE]
 sorted_coef_df <- data.frame(
-  Variabel = rownames(sorted_coef),
-  Koefficient = as.numeric(sorted_coef[, 1])
+Variabel = rownames(sorted_coef),
+Koefficient = as.numeric(sorted_coef[, 1])
 )
 print(sorted_coef_df)
-
 
 # Filtrera rader där Koefficient är större än 0.1
 filtered_coef_df <- sorted_coef_df[sorted_coef_df$Koefficient > 0.20, ]
@@ -214,15 +345,11 @@ filtered_coef_df <- sorted_coef_df[sorted_coef_df$Koefficient > 0.20, ]
 # Visa det filtrerade resultatet
 print(filtered_coef_df)
 
-
-
 filtered_lasso_vars <- lasso_importance[lasso_importance$Coefficient > 0.1, "Variable"]
 print(filtered_lasso_vars)  # Visa variabler med koefficient över 0.25
 
-
 missing_vars <- filtered_lasso_vars[!filtered_lasso_vars %in% colnames(data)]
 print(missing_vars)  # Variabler som inte finns i data
-
 
 filtered_lasso_vars <- filtered_lasso_vars[filtered_lasso_vars %in% colnames(data)]
 
@@ -323,41 +450,7 @@ for (alpha in alpha_vals) {
   
   # Spara resultatet
   results <- rbind(results, data.frame(alpha = alpha, lambda = best_lambda, rmse_val = rmse_val))
-}
 
-# Visa resultatet
-print(results)
-
-#Tränar om Lasso med alfa = 0.02
-
-selected_vars <- c("Modellår", "Hästkrafter", "Växellåda_Automat", 
-                   "BiltypSUV", "Säljare_företag", "Motorstorlek", 
-                   "BiltypKombi", "ModellXC90", "BränsleBensin")
-
-x_val <- model.matrix(Försäljningspris ~ ., data = val_data[, c("Försäljningspris", selected_vars)])[,-1]
-y_val <- val_data$Försäljningspris
-
-x_test <- model.matrix(Försäljningspris ~ ., data = test_data[, c("Försäljningspris", selected_vars)])[,-1]
-y_test <- test_data$Försäljningspris
-
-optimized_model <- cv.glmnet(x_train, y_train, alpha = 0.02)
-optimized_lambda <- optimized_model$lambda.min
-
-# Förutsägelser och RMSE
-predictions_val <- predict(optimized_model, s = optimized_lambda, newx = x_val)
-rmse_val <- sqrt(mean((y_val - predictions_val)^2))
-
-predictions_test <- predict(optimized_model, s = optimized_lambda, newx = x_test)
-rmse_test <- sqrt(mean((y_test - predictions_test)^2))
-
-# Spara resultaten i en data frame
-results <- data.frame(
-  Dataset = c("Valideringsdata", "Testdata"),
-  RMSE = c(rmse_val, rmse_test),
-  Lambda = optimized_lambda,
-  Alpha = 0.02
-)
-print(results)
 
 print(colnames(x_train))  # Variabler i träningsdata
 print(colnames(x_val))    # Variabler i valideringsdata
@@ -370,55 +463,7 @@ selected_vars <- c("Modellår", "Hästkrafter", "Växellåda_Automat",
 x_train <- model.matrix(Försäljningspris ~ ., data = train_data[, c("Försäljningspris", selected_vars)])[,-1]
 y_train <- train_data$Försäljningspris
 
-# Träna modellen med alpha = 0.02
-optimized_model <- cv.glmnet(x_train, y_train, alpha = 0.02)
-optimized_lambda <- optimized_model$lambda.min
-print(optimized_lambda)
 
-# Förutsägelser och RMSE
-predictions_val <- predict(optimized_model, s = optimized_lambda, newx = x_val)
-rmse_val <- sqrt(mean((y_val - predictions_val)^2))
-
-predictions_test <- predict(optimized_model, s = optimized_lambda, newx = x_test)
-rmse_test <- sqrt(mean((y_test - predictions_test)^2))
-
-# Spara resultaten
-results <- data.frame(
-  Dataset = c("Valideringsdata", "Testdata"),
-  RMSE = c(rmse_val, rmse_test),
-  Lambda = optimized_lambda,
-  Alpha = 0.02
-)
-
-print(results)
-
-# Loop för att optimera alpha
-for (alpha in alpha_vals) {
-  model <- cv.glmnet(x_train, y_train, alpha = alpha)  # Träna modellen
-  best_lambda <- model$lambda.min
-  
-  # Lista över alpha-värden i ett mindre intervall
-  alpha_vals <- seq(0.01, 0.1, by = 0.01)  # Finare intervall
-  results <- data.frame(alpha = numeric(), lambda = numeric(), rmse_val = numeric(), rmse_test = numeric())  # Tom data.frame
-  
-  # Loop för att optimera alpha
-  for (alpha in alpha_vals) {
-    # Träna modellen
-    model <- cv.glmnet(x_train, y_train, alpha = alpha)
-    best_lambda <- model$lambda.min
- 
-    optimized_coef <- coef(optimized_model, s = optimized_lambda)
-    print(optimized_coef)
-    
-    barplot(
-      optimized_coef[-1],  # Exkludera intercept
-      names.arg = rownames(optimized_coef)[-1],
-      main = "Effekten av variabler i Lasso-modellen",
-      col = "steelblue",
-      horiz = TRUE,
-      las = 2
-    )
-    
 ### Ridge Linjär regression
     # Designmatriser för träningsdata
     x_train <- model.matrix(Försäljningspris ~ ., data = train_data)[,-1]
@@ -599,23 +644,90 @@ qqline(residuals(updated_model), col = "red")
 
 ####Outliers punkt nr 5
 
-data_temp$Z_Score <- scale(residuals(lin_reg_pca_temp))
-outliers <- data_temp[abs(data_temp$Z_Score) > 3, ]
-print(outliers)
+if (!any(grepl("^z_", colnames(data_standardized)))) {
+z_scores <- as.data.frame(scale(data_standardized[, top_vars]))
+colnames(z_scores) <- paste0("z_", top_vars)
+data_standardized <- cbind(data_standardized, z_scores)
 
-data_cleaned <- data_temp[abs(data_temp$Z_Score) < 3, ]  # Tar bort outliers
-lm_model_pca_cleaned <- lm(model_formula_pca, data = data_cleaned)
-summary(lm_model_pca_cleaned)
 
-qqnorm(residuals(lm_model_pca_cleaned))
-qqline(residuals(lm_model_pca_cleaned), col = "red")
+  z_scores <- as.data.frame(scale(data_standardized[, top_vars]))
+  colnames(z_scores) <- paste0("z_", top_vars)
+  data_standardized <- cbind(data_standardized, z_scores)
+}
 
+
+for (var in top_vars) {
+  p <- ggplot(data_standardized, aes_string(x = var, y = paste0("z_", var))) +
+    geom_point(color = "blue") +
+    geom_hline(yintercept = 3, color = "red", linetype = "dashed") +
+    geom_hline(yintercept = -3, color = "red", linetype = "dashed") +
+    labs(title = paste(var, "vs Z-Score"), x = var, y = "Z-Score")
+  print(p)
+}
+
+outlier_data <- data_standardized[outlier_indices, ]
+print(outlier_data)
+
+data_standardized <- data_standardized[, c(top_vars, paste0("z_", top_vars))]
+print(colnames(data_standardized))
+data_standardized <- data_standardized[, !grepl("^z_", colnames(data_standardized))]
+print(colnames(data_standardized))
+
+
+outlier_indices <- which(data_standardized$Försäljningspris > 3 | data_standardized$Försäljningspris < -3)
+print(outlier_indices)
+
+data_without_outliers <- data_standardized[-outlier_indices, ]
+
+outlier_indices <- list()  # En lista för att lagra outliers för varje variabel
+
+for (var in top_vars) {
+  outlier_indices[[var]] <- which(data_standardized[[var]] > 3 | data_standardized[[var]] < -3)
+}
+
+#Kombinera alla index
+all_outlier_indices <- unique(unlist(outlier_indices))
+print(all_outlier_indices)
+
+data_without_outliers <- data_standardized[-all_outlier_indices, ]
+print(data_without_outliers)
+
+model_without_outliers<- lm(Försäljningspris ~ ., data = data_without_outliers[, c("Försäljningspris", top_vars)])
+summary(model_without_outliers)
+
+duplicated_columns <- colnames(data_standardized)[duplicated(colnames(data_standardized))]
+print(duplicated_columns)
+data_standardized <- data_standardized[, !duplicated(colnames(data_standardized))]
+
+anyDuplicated(colnames(data_standardized))  # Ska returnera 0
+data_standardized <- data_standardized[, !duplicated(colnames(data_standardized))]
 
 ####### High leverage points punkt nr 6
 # Identifiera high leverage points
 high_leverage <- which(hat_values > (2 * mean(hat_values)))
 print(high_leverage)
 
+plot(hat_values, main = "Hat-värden för observationer", xlab = "Index", ylab = "Hat-värde")
+abline(h = 2 * mean(hat_values), col = "red", lwd = 2)
+
+# Beräkna Cook's Distance
+cooks_distance <- cooks.distance(lm_top)
+
+# Plotta Cook's Distance
+plot(cooks_distance, main = "Cook's Distance för varje observation", 
+     xlab = "Observation", ylab = "Cook's Distance")
+abline(h = 4 / nrow(data_standardized), col = "red", lty = 2)  # Tröskellinje
+
+outlier_index <- which(cooks_distance > 0.080)
+print(outlier_index)
+
+print(data_standardized[outlier_index,])
+
+data_standardized$original_index <- 1:nrow(data_standardized)
+
+lm_top <- lm(Försäljningspris ~ ., data = data_standardized[, c("Försäljningspris", top_vars)], 
+             subset = rownames(data_standardized) != "775")
+summary(lm_top)
 
 # Skapa ett nytt dataset utan high leverage points
 filtered_data <- data[-high_leverage, ]
@@ -623,10 +735,8 @@ Y <- data$Försäljningspris[-high_leverage]
 print(length(Y))
 nrow(filtered_data) == length(Y)  # Ska returnera TRUE
 
-
 # Kontrollera hur många observationer som togs bort
 print(paste("Antal observationer borttagna:", length(high_leverage)))
-
 
 high_leverage_df$Cooks_Distance <- cooks.distance(lin_reg_pca)[high_leverage_df$Observation]
 
@@ -648,7 +758,19 @@ ggplot(high_leverage_df, aes(x = Observation, y = HatValue)) +
 
 # Punkt 7, Kollinaritet och multikollariet
 
-library(car)
+# Skapa en data frame med variabler och deras VIF-värden
+vif_df <- data.frame(
+  Variable = names(vif_values),
+  VIF = vif_values
+)
+
+# Visa data frame
+print(vif_df)
+
+# Sortera data frame efter VIF-värden
+vif_df_sorted <- vif_df[order(vif_df$VIF, decreasing = TRUE), ]
+print(vif_df_sorted)
+
 
 cor_matrix <- cor(x_train)
 print(cor_matrix)
